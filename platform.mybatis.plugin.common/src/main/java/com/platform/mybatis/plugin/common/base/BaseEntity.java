@@ -1,51 +1,50 @@
 package com.platform.mybatis.plugin.common.base;
 
-import java.io.Serializable;
 import java.util.Date;
 
 
 /**
- * 
+ * 实体 基类 用于审计字段
  * @ClassName: BaseEntity   
  * @Description: TODO  
- * @author: Administrator  
- * @date:2018年9月1日 下午7:37:24
+ * @author: kangjin.zhao@accenture  
+ * @date:2018年9月3日 下午4:47:21
  */
-public class BaseEntity implements Serializable{
-	private static final long serialVersionUID = 8955199657445481544L;
-	private Date createDate;
-	private Date lastUpdateDate;
-	private String createBy;
-	private String lastUpdateBy;
-	private boolean deleteFlag;
-	public Date getCreateDate() {
-		return createDate;
+public class BaseEntity{
+	private Date createdDate;
+	private Date lastUpdatedDate;
+	private String createdBy;
+	private String lastUpdatedBy;
+	private boolean deletedFlag;
+	public Date getCreatedDate() {
+		return createdDate;
 	}
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
-	public Date getLastUpdateDate() {
-		return lastUpdateDate;
+	public Date getLastUpdatedDate() {
+		return lastUpdatedDate;
 	}
-	public void setLastUpdateDate(Date lastUpdateDate) {
-		this.lastUpdateDate = lastUpdateDate;
+	public void setLastUpdatedDate(Date lastUpdatedDate) {
+		this.lastUpdatedDate = lastUpdatedDate;
 	}
-	public String getCreateBy() {
-		return createBy;
+	public String getCreatedBy() {
+		return createdBy;
 	}
-	public void setCreateBy(String createBy) {
-		this.createBy = createBy;
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
-	public String getLastUpdateBy() {
-		return lastUpdateBy;
+	public String getLastUpdatedBy() {
+		return lastUpdatedBy;
 	}
-	public void setLastUpdateBy(String lastUpdateBy) {
-		this.lastUpdateBy = lastUpdateBy;
+	public void setLastUpdatedBy(String lastUpdatedBy) {
+		this.lastUpdatedBy = lastUpdatedBy;
 	}
-	public boolean isDeleteFlag() {
-		return deleteFlag;
+	public boolean isDeletedFlag() {
+		return deletedFlag;
 	}
-	public void setDeleteFlag(boolean deleteFlag) {
-		this.deleteFlag = deleteFlag;
+	public void setDeletedFlag(boolean deletedFlag) {
+		this.deletedFlag = deletedFlag;
 	}
+	
 }
