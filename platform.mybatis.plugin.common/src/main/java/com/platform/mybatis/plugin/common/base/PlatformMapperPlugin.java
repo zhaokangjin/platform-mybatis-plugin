@@ -74,7 +74,7 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		method.setVisibility(JavaVisibility.PUBLIC);
 		method.setReturnType(FullyQualifiedJavaType.getIntInstance());
 		method.addParameter(new Parameter(new FullyQualifiedJavaType("java.lang.String"), "fieldName", "@Param(\"fieldName\")"));
-		method.addParameter(new Parameter(new FullyQualifiedJavaType("java.util.List<java.lang.String>"), "paramList", "@Param(\"list\")"));
+		method.addParameter(new Parameter(new FullyQualifiedJavaType("java.util.List<java.lang.String>"), "paramList", "@Param(\"paramList\")"));
 		FullyQualifiedJavaType returnType=new FullyQualifiedJavaType("java.util.List<" + introspectedTable.getBaseRecordType() + ">");
 		method.setReturnType(returnType);
 		context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
@@ -92,9 +92,9 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		
 		select.addElement(new TextElement("	where 1=1 "));
 		select.addElement(new TextElement("		<if test=\"fieldName != null\">"));
-		select.addElement(new TextElement("			and t.#{fieldName} in "));
+		select.addElement(new TextElement("			and t.${fieldName} in "));
 		select.addElement(new TextElement("				<foreach collection=\"paramList\" item=\"item\" open=\"(\" close=\")\" separator=\",\">"));
-		select.addElement(new TextElement("					item"));
+		select.addElement(new TextElement("					#{item,jdbcType=VARCHAR}"));
 		select.addElement(new TextElement("				</foreach>"));
 		select.addElement(new TextElement("		</if>"));
 		parentElement.addElement(select);
