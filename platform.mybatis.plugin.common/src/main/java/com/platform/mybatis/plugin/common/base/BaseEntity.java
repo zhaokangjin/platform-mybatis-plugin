@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 实体 基类 用于审计字段
  * @ClassName: BaseEntity   
- * @Description: TODO  
+ * @Description: 实体 基类 用于审计字段 
  * @author: kangjin.zhao@accenture  
  * @date:2018年9月3日 下午4:47:21
  */
