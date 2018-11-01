@@ -1,15 +1,15 @@
-package com.platform.framemaker;
+package com.platform.provider.test;
 
 import java.util.List;
 
 /**
  *  @author kangjin.zhao
  */
-public class Person {
-    private Long id;
-    private String name;
-    private Integer age;
-    private List<String> hobby;
+public class PersonProviderTest {
+    private java.lang.Long id;
+    private java.lang.String name;
+    private java.lang.Integer age;
+    private java.util.List<String> hobby;
 
     public void setId(java.lang.Long id){
         this.id = id;

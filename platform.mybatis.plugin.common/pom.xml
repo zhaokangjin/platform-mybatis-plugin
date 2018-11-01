@@ -55,6 +55,11 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.platform</groupId>
+			<artifactId>platform.common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
