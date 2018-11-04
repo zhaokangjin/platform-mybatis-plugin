@@ -12,6 +12,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.platform.framemaker.entity.EntityAttribute;
+import com.platform.framemaker.entity.EntityFileBody;
 import com.platform.utils.JoinUtils;
 
 import freemarker.template.Configuration;
@@ -138,7 +140,7 @@ public class CodeGenerator {
 		
 		pojoTemplate.setCharacterCoding("UTF-8");
 		
-		JavaFileBody javaFileBody = new JavaFileBody();
+		EntityFileBody javaFileBody = new EntityFileBody();
 //		javaFileBody.setPackageName("com.platform.framemaker");
 //		String templatePath = "H:/platformMybatisPlugin/master/code/platform-mybatis-plugin/platform.mybatis.plugin.common/src/main/templates";
 		String className=null;
@@ -186,11 +188,11 @@ public class CodeGenerator {
 		javaFileBody.setClassName(className);
 		javaFileBody.setImportPackage(null);
 		javaFileBody.setAuthor("kangjin.zhao");
-		List<Attribute> attrList = new ArrayList<Attribute>();
-		attrList.add(new Attribute("id", "java.lang.Long"));
-		attrList.add(new Attribute("name", "java.lang.String"));
-		attrList.add(new Attribute("age", "java.lang.Integer"));
-		attrList.add(new Attribute("hobby", "java.util.List<String>"));
+		List<EntityAttribute> attrList = new ArrayList<EntityAttribute>();
+		attrList.add(new EntityAttribute("id", "java.lang.Long"));
+		attrList.add(new EntityAttribute("name", "java.lang.String"));
+		attrList.add(new EntityAttribute("age", "java.lang.Integer"));
+		attrList.add(new EntityAttribute("hobby", "java.util.List<String>"));
 		javaFileBody.setAttrList(attrList);
 		pojoTemplate.setJavaFileBody(javaFileBody);
 		//String resourcePath="platform.field.mapping/src/";

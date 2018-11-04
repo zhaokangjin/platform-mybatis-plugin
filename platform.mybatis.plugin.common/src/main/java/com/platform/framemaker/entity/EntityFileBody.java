@@ -1,9 +1,9 @@
-package com.platform.framemaker;
+package com.platform.framemaker.entity;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class JavaFileBody implements Serializable {
+public class EntityFileBody implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String packageName;
 	//依赖包导入
@@ -11,7 +11,7 @@ public class JavaFileBody implements Serializable {
 	private String className;
 	private String author;
 	//构造pojo的属性
-	private List<Attribute> attrList;
+	private List<EntityAttribute> attrList;
 
 	public String getPackageName() {
 		return packageName;
@@ -45,11 +45,11 @@ public class JavaFileBody implements Serializable {
 		this.author = author;
 	}
 
-	public List<Attribute> getAttrList() {
+	public List<EntityAttribute> getAttrList() {
 		return attrList;
 	}
 
-	public void setAttrList(List<Attribute> attrList) {
+	public void setAttrList(List<EntityAttribute> attrList) {
 		this.attrList = attrList;
 	}
 

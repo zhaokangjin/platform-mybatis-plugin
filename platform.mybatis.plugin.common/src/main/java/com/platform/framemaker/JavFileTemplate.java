@@ -2,11 +2,13 @@ package com.platform.framemaker;
 
 import java.io.Serializable;
 
+import com.platform.framemaker.entity.EntityFileBody;
+
 public class JavFileTemplate implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private String characterCoding;
 	private String templatePath;
-	private JavaFileBody javaFileBody;
+	private EntityFileBody javaFileBody;
 	private String templateFileName;
 	private String javaFilePath;
 
@@ -29,10 +31,10 @@ public class JavFileTemplate implements Serializable{
 		this.javaFilePath = javaFilePath;
 	}
 
-	public JavaFileBody getJavaFileBody() {
+	public EntityFileBody getJavaFileBody() {
 		return javaFileBody;
 	}
-	public void setJavaFileBody(JavaFileBody javaFileBody) {
+	public void setJavaFileBody(EntityFileBody javaFileBody) {
 		this.javaFileBody = javaFileBody;
 	}
 	public String getCharacterCoding() {

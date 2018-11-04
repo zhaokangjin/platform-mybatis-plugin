@@ -1,10 +1,10 @@
-package com.platform.framemaker;
+package com.platform.framemaker.entity;
 
-public class Attribute {
+public class EntityAttribute {
 	private String type;
 	private String name;
 
-	public Attribute(String name, String type) {
+	public EntityAttribute(String name, String type) {
 		this.name = name;
 		this.type = type;
 	}
