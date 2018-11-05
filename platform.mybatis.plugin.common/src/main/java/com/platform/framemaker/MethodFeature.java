@@ -1,6 +1,9 @@
-package com.platform.framemaker.method.signature;
+package com.platform.framemaker;
 
 import java.io.Serializable;
+
+import com.platform.framemaker.method.signature.MethodNotesAndAnnotations;
+import com.platform.framemaker.method.signature.MethodParams;
 
 public class MethodFeature implements Serializable{
 
@@ -18,6 +21,15 @@ public class MethodFeature implements Serializable{
 	
 	private MethodParams daoParams;
 
+	public MethodFeature(MethodNotesAndAnnotations methodNotes,String returnType,String methodName,MethodParams serviceParams,String daoMethodName,MethodParams daoParams) {
+		this.methodNotes=methodNotes;
+		this.returnType=returnType;
+		this.methodName=methodName;
+		this.serviceParams=serviceParams;
+		this.daoMethodName=methodName;
+		this.daoParams=daoParams;
+	}
+	
 	public MethodNotesAndAnnotations getMethodNotes() {
 		return methodNotes;
 	}

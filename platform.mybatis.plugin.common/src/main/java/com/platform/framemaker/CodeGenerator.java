@@ -11,9 +11,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.platform.framemaker.entity.EntityAttribute;
-import com.platform.framemaker.entity.EntityFileBody;
+import com.platform.framemaker.method.signature.MethodNotesAndAnnotations;
+import com.platform.framemaker.method.signature.MethodParams;
+import com.platform.framemaker.method.signature.ParamDescription;
 import com.platform.utils.JoinUtils;
 
 import freemarker.template.Configuration;
@@ -29,24 +32,28 @@ public class CodeGenerator {
 	public static void main(String[] args) {
 		String path=System.getProperty("user.dir") ;
 		System.err.println("path>>>"+path);
-		String domainObjectName = "person";
+		String domainName = "person";
 		String packageName="com.platform";
-//		String resourcePath="platform.field.mapping/src/";
-		JavFileTemplate javFileTemplate1 = pojoParam(packageName,domainObjectName,JavaFileType.CONDITION);
-		JavFileTemplate javFileTemplate2 = pojoParam(packageName,domainObjectName,JavaFileType.SERVICE);
-		JavFileTemplate javFileTemplate3 = pojoParam(packageName,domainObjectName,JavaFileType.PROVIDER);
-		JavFileTemplate javFileTemplate4 = pojoParam(packageName,domainObjectName,JavaFileType.PROVIDER_IMPL);
-		JavFileTemplate javFileTemplate5 = pojoParam(packageName,domainObjectName,JavaFileType.TEST);
+//		JavaFileBody conditionFileBody=new JavaFileBody(packageName,domainName,JavaFileType.CONDITION);
+		JavaFileBody serviceFileBody=new JavaFileBody(packageName,domainName,JavaFileType.SERVICE);
+//		JavaFileBody providerFileBody=new JavaFileBody(packageName,domainName,JavaFileType.PROVIDER);
+//		JavaFileBody providerImplFileBody=new JavaFileBody(packageName,domainName,JavaFileType.PROVIDER_IMPL);
+//		JavaFileBody testFileBody=new JavaFileBody(packageName,domainName,JavaFileType.TEST);
+//		JavFileTemplate<JavaFileBody> javFileTemplate1 = generatorJavaFile(conditionFileBody);
+		JavFileTemplate<JavaFileBody> javFileTemplate2 = generatorJavaFile(serviceFileBody);
+//		JavFileTemplate<JavaFileBody> javFileTemplate3 = generatorJavaFile(providerFileBody);
+//		JavFileTemplate<JavaFileBody> javFileTemplate4 = generatorJavaFile(providerImplFileBody);
+//		JavFileTemplate<JavaFileBody> javFileTemplate5 = generatorJavaFile(testFileBody)
 		
 		
-		new CodeGenerator().genPojoFile(javFileTemplate1);
+//		new CodeGenerator().genPojoFile(javFileTemplate1);
 		new CodeGenerator().genPojoFile(javFileTemplate2);
-		new CodeGenerator().genPojoFile(javFileTemplate3);
-		new CodeGenerator().genPojoFile(javFileTemplate4);
-		new CodeGenerator().genPojoFile(javFileTemplate5);
+//		new CodeGenerator().genPojoFile(javFileTemplate3);
+//		new CodeGenerator().genPojoFile(javFileTemplate4);
+//		new CodeGenerator().genPojoFile(javFileTemplate5);
 	}
 
-	public void genPojoFile(JavFileTemplate javFileTemplate) {
+	public void genPojoFile(JavFileTemplate<JavaFileBody> javFileTemplate) {
 		Configuration cfg = null;
 		File file = null;
 		// java文件的生成目录
@@ -64,9 +71,9 @@ public class CodeGenerator {
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
-			fos = new FileOutputStream(new File(dir, javFileTemplate.getJavaFileBody().getClassName() + ".java"));
+			fos = new FileOutputStream(new File(dir, javFileTemplate.getFileBody().getClassName() + ".java"));
 			out = new OutputStreamWriter(fos);
-			temp.process(javFileTemplate.getJavaFileBody(), out);
+			temp.process(javFileTemplate.getFileBody(), out);
 			fos.flush();
 			out.flush();
 			logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">result:success");
@@ -90,7 +97,7 @@ public class CodeGenerator {
 		}
 	}
 
-	public void genServiceFile(JavFileTemplate pojoTemplate) {
+	public void genServiceFile(JavFileTemplate<JavaFileBody> pojoTemplate) {
 		Configuration cfg = null;
 		File file = null;
 		// java文件的生成目录
@@ -108,17 +115,18 @@ public class CodeGenerator {
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
-			fos = new FileOutputStream(new File(dir, pojoTemplate.getJavaFileBody().getClassName() + ".java"));
+			fos = new FileOutputStream(new File(dir, pojoTemplate.getFileBody().getClassName() + ".java"));
 			out = new OutputStreamWriter(fos);
-			temp.process(pojoTemplate.getJavaFileBody(), out);
-			fos.flush();
-			out.flush();
+			temp.process(pojoTemplate.getFileBody(), out);
+			
+			
 			logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">result:success");
 		} catch (IOException | TemplateException e1) {
 			logger.error(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">Exception:" + e1);
 		} finally {
 			if (null != fos) {
 				try {
+					fos.flush();
 					fos.close();
 				} catch (IOException e) {
 					logger.error(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">IOExceptionFos:" + e);
@@ -126,6 +134,7 @@ public class CodeGenerator {
 			}
 			if (null != out) {
 				try {
+					out.flush();
 					out.close();
 				} catch (IOException e) {
 					logger.error(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">IOExceptionOut:" + e);
@@ -134,77 +143,71 @@ public class CodeGenerator {
 		}
 	}
 
-	private static JavFileTemplate pojoParam(String packageName,String domainObjectName,JavaFileType javaFileType) {
-		
-		JavFileTemplate pojoTemplate = new JavFileTemplate();
-		
-		pojoTemplate.setCharacterCoding("UTF-8");
-		
-		EntityFileBody javaFileBody = new EntityFileBody();
-//		javaFileBody.setPackageName("com.platform.framemaker");
-//		String templatePath = "H:/platformMybatisPlugin/master/code/platform-mybatis-plugin/platform.mybatis.plugin.common/src/main/templates";
-		String className=null;
+	private static JavFileTemplate<JavaFileBody> generatorJavaFile(JavaFileBody javaFileBody) {
+		JavFileTemplate<JavaFileBody> javFileTemplate = new JavFileTemplate<JavaFileBody>();
 		String javaFilePath =null;
 		File javaDocfile=null;
-		//H:\platformMybatisPlugin\master\code\platform-mybatis-plugin\platform.mybatis.plugin.common\src\test\java
-		//H:\platformMybatisPlugin\master\code\platform-mybatis-plugin\platform.mybatis.plugin.common\src\main\java
-		//H:\platformMybatisPlugin\master\code\platform-mybatis-plugin\platform.mybatis.plugin.common
 		String userDir=System.getProperty("user.dir")+SEPARATOR +"src";
 		String templatePath = userDir+SEPARATOR+"main"+SEPARATOR+"templates";
-		//String packageName="com.platform";
+		String packageName=javaFileBody.getPackageName();
+		javaFileBody.setDataAlias("master");
 		String packagePath=JoinUtils.join(packageName, ".", SEPARATOR);
 		javaFilePath= userDir+SEPARATOR+"main"+SEPARATOR+"java"+SEPARATOR+packagePath;
-		if(javaFileType.name().equals("CONDITION")) {
-			pojoTemplate.setTemplateFileName("condition.ftl");
+		if(javaFileBody.getJavaFileType().name().equals("CONDITION")) {
+			javFileTemplate.setTemplateFileName("condition.ftl");
 			javaFileBody.setPackageName(packageName+".condition");
 			javaDocfile=new File(javaFilePath+SEPARATOR+"condition");
-			className= toUpperCaseFirstChar(domainObjectName+"Condition");
-		}else if(javaFileType.name().equals("SERVICE")){
-			pojoTemplate.setTemplateFileName("sevice.ftl");
+			List<EntityAttribute> attrList = new ArrayList<EntityAttribute>();
+			attrList.add(new EntityAttribute("id", "java.lang.Long"));
+			attrList.add(new EntityAttribute("name", "java.lang.String"));
+			attrList.add(new EntityAttribute("age", "java.lang.Integer"));
+			attrList.add(new EntityAttribute("hobby", "java.util.List<String>"));
+			javaFileBody.setAttrList(attrList);
+		}else if(javaFileBody.getJavaFileType().name().equals("SERVICE")){
+			javFileTemplate.setTemplateFileName("sevice.ftl");
 			javaFileBody.setPackageName(packageName+".service");
 			javaDocfile=new File(javaFilePath+SEPARATOR+"service");
-			className= toUpperCaseFirstChar(domainObjectName)+"Service";
-		}else if(javaFileType.name().equals("PROVIDER")){
-			pojoTemplate.setTemplateFileName("provider.ftl");
+			List<MethodFeature> methodItemList=new ArrayList<MethodFeature>();
+			MethodParams methodParams=new MethodParams();
+			List<ParamDescription> listP=new ArrayList<ParamDescription>();
+			ParamDescription paramD=new ParamDescription();
+			paramD.setClassName("String");
+			paramD.setInstanceName("name");
+			paramD.setPackageName("java.lang");
+			listP.add(paramD);
+			methodParams.setParamDescriptionList(listP);
+			MethodNotesAndAnnotations methodNotesAndAnnotations=new MethodNotesAndAnnotations();
+			List<String> an=new ArrayList<String>();
+			an.add("@Service");
+			List<String> des=new ArrayList<String>();
+			des.add("//nihao");
+			methodNotesAndAnnotations.setMethodNotes(des);
+			
+			methodNotesAndAnnotations.setMethodAnnotation(an);
+			methodItemList.add(new MethodFeature(methodNotesAndAnnotations,"String","selecttiv",methodParams,"selective",methodParams));
+			javaFileBody.setMethodFeatureList(methodItemList);
+		}else if(javaFileBody.getJavaFileType().name().equals("PROVIDER")){
+			javFileTemplate.setTemplateFileName("provider.ftl");
 			javaFileBody.setPackageName(packageName+".provider");
 			javaDocfile=new File(javaFilePath+SEPARATOR+"provider");
-			className= toUpperCaseFirstChar(domainObjectName)+"Provider";
-		}else if(javaFileType.name().equals("PROVIDER_IMPL")){
-			pojoTemplate.setTemplateFileName("providerImpl.ftl");
+		}else if(javaFileBody.getJavaFileType().name().equals("PROVIDER_IMPL")){
+			javFileTemplate.setTemplateFileName("providerImpl.ftl");
 			javaDocfile=new File(javaFilePath+SEPARATOR+"provider"+SEPARATOR+"impl");
 			javaFileBody.setPackageName(packageName+".provider.impl");
-			className= toUpperCaseFirstChar(domainObjectName)+"ProviderImpl";
-		}else  if(javaFileType.name().equals("TEST")){
-			pojoTemplate.setTemplateFileName("test.ftl");
+		}else  if(javaFileBody.getJavaFileType().name().equals("TEST")){
+			javFileTemplate.setTemplateFileName("test.ftl");
 			javaFilePath=userDir+SEPARATOR+"test"+SEPARATOR+"java"+SEPARATOR+packagePath;
 			javaDocfile=new File(javaFilePath+SEPARATOR+"provider"+SEPARATOR+"test");
 			javaFileBody.setPackageName(packageName+".provider.test");
-			className= toUpperCaseFirstChar(domainObjectName)+"ProviderTest";
 		}
+		
 		if(javaDocfile.exists()&&!javaDocfile.isDirectory()) {
 			javaDocfile.mkdir();
 		}
-		pojoTemplate.setTemplatePath(templatePath);
-		javaFileBody.setClassName(className);
-		javaFileBody.setImportPackage(null);
-		javaFileBody.setAuthor("kangjin.zhao");
-		List<EntityAttribute> attrList = new ArrayList<EntityAttribute>();
-		attrList.add(new EntityAttribute("id", "java.lang.Long"));
-		attrList.add(new EntityAttribute("name", "java.lang.String"));
-		attrList.add(new EntityAttribute("age", "java.lang.Integer"));
-		attrList.add(new EntityAttribute("hobby", "java.util.List<String>"));
-		javaFileBody.setAttrList(attrList);
-		pojoTemplate.setJavaFileBody(javaFileBody);
-		//String resourcePath="platform.field.mapping/src/";
-		
-		pojoTemplate.setJavaFilePath(javaDocfile.getPath());
-		return pojoTemplate;
-	}
-
-	public static String toUpperCaseFirstChar(String domainObjectName) {
-		if (Character.isUpperCase(domainObjectName.charAt(0)))
-			return domainObjectName;
-		else
-			return (new StringBuilder()).append(Character.toUpperCase(domainObjectName.charAt(0))).append(domainObjectName.substring(1)).toString();
+		javFileTemplate.setTemplatePath(templatePath);
+		javFileTemplate.setFileBody(javaFileBody);;
+		javFileTemplate.setJavaFilePath(javaDocfile.getPath());
+		javFileTemplate.setCharacterCoding("UTF-8");
+		return javFileTemplate;
 	}
 }

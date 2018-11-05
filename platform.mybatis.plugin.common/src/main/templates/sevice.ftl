@@ -15,35 +15,36 @@ import com.platform.configure.base.ConditionToExample;
 import com.platform.configure.base.Status;
 import com.platform.configure.base.StatusResult;
 
-import ${packageName}.condition.${domainName}Condition;
-import ${packageName}.dao.${dataAlias}.${domainName}Mapper;
-import ${packageName}.entity.${domainName};
-import ${packageName}.entity.${domainName}Example;
-import ${packageName}.entity.${domainName}Example.Criteria;
+import ${basePackageName}.condition.${upperDomainName}Condition;
+import ${basePackageName}.dao.${dataAlias}.${upperDomainName}Mapper;
+import ${basePackageName}.entity.${upperDomainName};
+import ${basePackageName}.entity.${upperDomainName}Example;
+import ${basePackageName}.entity.${upperDomainName}Example.Criteria;
 
 /**
  * 逻辑处理层
- * @author ${author}
+ * @author 
  */
 @Service
 @Transactional
-public class ${className}  implements BaseService<${domainName}, ${domainName}Condition>{
+public class ${className}  implements BaseService<${upperDomainName}, ${upperDomainName}Condition>{
 	private Logger logger =LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
-	${domainName}Mapper ${lowerDomainName}Mapper;
+	${upperDomainName}Mapper ${lowerDomainName}Mapper;
 	
-	<#list attrList as attr>
+	<#list methodFeatureList as methodItem>
 
-    public ${returnType} ${methodName}(${params}){
-        logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">JSONParam:"+${JSONParamString});
+    public ${methodItem.returnType} ${methodItem.methodName}(${methodItem.serviceParams}){
+        logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">JSONParam:");
     	try{
-    		${lowerDomainName}Mapper.${methodName}(${params});
-    		${returnResult};
+    		${methodItem.returnType} result=${lowerDomainName}Mapper.${methodItem.methodName}(${methodItem.daoParams});
+    		return reulst;
     	}catch(Exception e){
     		logger.error(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">IOExceptionFos:" + e);
     		//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-    		${exceptionTransactionSetting};
+    		//exceptionTransactionSetting;
+    		TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
     	}
     	
     }

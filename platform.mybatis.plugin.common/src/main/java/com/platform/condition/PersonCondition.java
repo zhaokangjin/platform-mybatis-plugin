@@ -3,7 +3,7 @@ package com.platform.condition;
 import java.util.List;
 
 /**
- *  @author kangjin.zhao
+ * 
  */
 public class PersonCondition {
     private java.lang.Long id;

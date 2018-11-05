@@ -2,15 +2,16 @@ package com.platform.framemaker;
 
 import java.io.Serializable;
 
-import com.platform.framemaker.entity.EntityFileBody;
-
-public class JavFileTemplate implements Serializable{
+public class JavFileTemplate<T> implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private String characterCoding;
 	private String templatePath;
-	private EntityFileBody javaFileBody;
+	private T fileBody;
 	private String templateFileName;
 	private String javaFilePath;
+	private String dataAlias;
+	private String domainName;
+	private String lowerDomainName;
 
 	public String getTemplatePath() {
 		return templatePath;
@@ -31,16 +32,35 @@ public class JavFileTemplate implements Serializable{
 		this.javaFilePath = javaFilePath;
 	}
 
-	public EntityFileBody getJavaFileBody() {
-		return javaFileBody;
-	}
-	public void setJavaFileBody(EntityFileBody javaFileBody) {
-		this.javaFileBody = javaFileBody;
-	}
 	public String getCharacterCoding() {
 		return characterCoding;
 	}
 	public void setCharacterCoding(String characterCoding) {
 		this.characterCoding = characterCoding;
 	}
+	public T getFileBody() {
+		return fileBody;
+	}
+	public void setFileBody(T fileBody) {
+		this.fileBody = fileBody;
+	}
+	public String getDataAlias() {
+		return dataAlias;
+	}
+	public void setDataAlias(String dataAlias) {
+		this.dataAlias = dataAlias;
+	}
+	public String getDomainName() {
+		return domainName;
+	}
+	public void setDomainName(String domainName) {
+		this.domainName = domainName;
+	}
+	public String getLowerDomainName() {
+		return lowerDomainName;
+	}
+	public void setLowerDomainName(String lowerDomainName) {
+		this.lowerDomainName = lowerDomainName;
+	}
+
 }

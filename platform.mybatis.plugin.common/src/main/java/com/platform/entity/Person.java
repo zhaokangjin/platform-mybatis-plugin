@@ -1,11 +1,10 @@
-package com.platform.provider.test;
+package com.platform.entity;
 
-import java.util.List;
 
 /**
- *  @author kangjin.zhao
+ * 
  */
-public class PersonProviderTest {
+public class Person {
     private java.lang.Long id;
     private java.lang.String name;
     private java.lang.Integer age;

@@ -3,7 +3,7 @@ package ${packageName};
 import java.util.List;
 
 /**
- *  @author ${author}
+ * 
  */
 public class ${className} {
     <#list attrList as attr> 
