@@ -1,81 +1,63 @@
 package com.platform.framemaker;
 
 import java.io.Serializable;
-
-import com.platform.framemaker.method.signature.MethodNotesAndAnnotations;
-import com.platform.framemaker.method.signature.MethodParams;
+import java.util.List;
 
 public class MethodFeature implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
-	private MethodNotesAndAnnotations methodNotes;
+	private List<String> methodDescription;
+	
+	private List<String> methodAnnotation;
 	
 	private String returnType ;
 	
 	private String methodName;
 	
-	private MethodParams serviceParams;
+	private String serviceParams;
 	
 	private String daoMethodName;
 	
-	private MethodParams daoParams;
+	private String daoParams;
 
-	public MethodFeature(MethodNotesAndAnnotations methodNotes,String returnType,String methodName,MethodParams serviceParams,String daoMethodName,MethodParams daoParams) {
-		this.methodNotes=methodNotes;
+	public MethodFeature(List<String> methodDescription,List<String> methodAnnotation,String returnType,String methodName,String serviceParams,String daoMethodName,String daoParams) {
+		this.methodDescription=methodDescription;
+		this.methodAnnotation=methodAnnotation;
 		this.returnType=returnType;
 		this.methodName=methodName;
 		this.serviceParams=serviceParams;
 		this.daoMethodName=methodName;
 		this.daoParams=daoParams;
 	}
-	
-	public MethodNotesAndAnnotations getMethodNotes() {
-		return methodNotes;
+
+	public List<String> getMethodDescription() {
+		return methodDescription;
 	}
 
-	public void setMethodNotes(MethodNotesAndAnnotations methodNotes) {
-		this.methodNotes = methodNotes;
-	}
-
-
-	public String getMethodName() {
-		return methodName;
-	}
-
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
-
-	public MethodParams getServiceParams() {
-		return serviceParams;
-	}
-
-	public void setServiceParams(MethodParams serviceParams) {
-		this.serviceParams = serviceParams;
-	}
-
-	public String getDaoMethodName() {
-		return daoMethodName;
-	}
-
-	public void setDaoMethodName(String daoMethodName) {
-		this.daoMethodName = daoMethodName;
-	}
-
-	public MethodParams getDaoParams() {
-		return daoParams;
-	}
-
-	public void setDaoParams(MethodParams daoParams) {
-		this.daoParams = daoParams;
+	public List<String> getMethodAnnotation() {
+		return methodAnnotation;
 	}
 
 	public String getReturnType() {
 		return returnType;
 	}
 
-	public void setReturnType(String returnType) {
-		this.returnType = returnType;
+	public String getMethodName() {
+		return methodName;
 	}
+
+	public String getServiceParams() {
+		return serviceParams;
+	}
+
+	public String getDaoMethodName() {
+		return daoMethodName;
+	}
+
+	public String getDaoParams() {
+		return daoParams;
+	}
+	
+	
 }

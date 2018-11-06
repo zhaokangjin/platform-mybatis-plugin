@@ -1,16 +1,21 @@
 package com.platform.framemaker.method.signature;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class MethodParams implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private List<ParamDescription> paramDescriptionList;
-	public List<ParamDescription> getParamDescriptionList() {
-		return paramDescriptionList;
+	private String paramDescription;
+	
+	public MethodParams(String paramDescription) {
+		this.paramDescription=paramDescription;
 	}
-	public void setParamDescriptionList(List<ParamDescription> paramDescriptionList) {
-		this.paramDescriptionList = paramDescriptionList;
+	
+	public String getParamDescription() {
+		return paramDescription;
 	}
+	public void setParamDescription(String paramDescription) {
+		this.paramDescription = paramDescription;
+	}
+	
 }

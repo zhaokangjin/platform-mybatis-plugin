@@ -24,6 +24,7 @@
 		<enCode>UTF-8</enCode>
 	</properties>
 	<dependencies>
+		<!-- mvn deploy:deploy-file -DgroupId= -DartifactId= -Dversion= -Dpackage= -Dfile= -Durl= -DrepositoryId="nexus" -->
 		<dependency>
 			<groupId>com.platform</groupId>
 			<artifactId>platform.field.mapping</artifactId>

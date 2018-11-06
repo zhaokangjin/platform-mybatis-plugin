@@ -6,16 +6,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import com.platform.configure.base.BaseService;
 import com.platform.framemaker.entity.EntityAttribute;
-import com.platform.framemaker.method.signature.MethodNotesAndAnnotations;
-import com.platform.framemaker.method.signature.MethodParams;
 import com.platform.framemaker.method.signature.ParamDescription;
 import com.platform.utils.JoinUtils;
 
@@ -32,7 +34,7 @@ public class CodeGenerator {
 	public static void main(String[] args) {
 		String path=System.getProperty("user.dir") ;
 		System.err.println("path>>>"+path);
-		String domainName = "person";
+		String domainName = "fieldMapping";
 		String packageName="com.platform";
 //		JavaFileBody conditionFileBody=new JavaFileBody(packageName,domainName,JavaFileType.CONDITION);
 		JavaFileBody serviceFileBody=new JavaFileBody(packageName,domainName,JavaFileType.SERVICE);
@@ -47,13 +49,13 @@ public class CodeGenerator {
 		
 		
 //		new CodeGenerator().genPojoFile(javFileTemplate1);
-		new CodeGenerator().genPojoFile(javFileTemplate2);
+		new CodeGenerator().genJavaFile(javFileTemplate2);
 //		new CodeGenerator().genPojoFile(javFileTemplate3);
 //		new CodeGenerator().genPojoFile(javFileTemplate4);
 //		new CodeGenerator().genPojoFile(javFileTemplate5);
 	}
 
-	public void genPojoFile(JavFileTemplate<JavaFileBody> javFileTemplate) {
+	public void genJavaFile(JavFileTemplate<JavaFileBody> javFileTemplate) {
 		Configuration cfg = null;
 		File file = null;
 		// java文件的生成目录
@@ -142,7 +144,13 @@ public class CodeGenerator {
 			}
 		}
 	}
-
+/**
+ * 
+ * @Title: generatorJavaFile   
+ * @Description: TODO  
+ * @param javaFileBody
+ * @return
+ */
 	private static JavFileTemplate<JavaFileBody> generatorJavaFile(JavaFileBody javaFileBody) {
 		JavFileTemplate<JavaFileBody> javFileTemplate = new JavFileTemplate<JavaFileBody>();
 		String javaFilePath =null;
@@ -168,23 +176,45 @@ public class CodeGenerator {
 			javaFileBody.setPackageName(packageName+".service");
 			javaDocfile=new File(javaFilePath+SEPARATOR+"service");
 			List<MethodFeature> methodItemList=new ArrayList<MethodFeature>();
-			MethodParams methodParams=new MethodParams();
-			List<ParamDescription> listP=new ArrayList<ParamDescription>();
-			ParamDescription paramD=new ParamDescription();
-			paramD.setClassName("String");
-			paramD.setInstanceName("name");
-			paramD.setPackageName("java.lang");
-			listP.add(paramD);
-			methodParams.setParamDescriptionList(listP);
-			MethodNotesAndAnnotations methodNotesAndAnnotations=new MethodNotesAndAnnotations();
-			List<String> an=new ArrayList<String>();
-			an.add("@Service");
-			List<String> des=new ArrayList<String>();
-			des.add("//nihao");
-			methodNotesAndAnnotations.setMethodNotes(des);
-			
-			methodNotesAndAnnotations.setMethodAnnotation(an);
-			methodItemList.add(new MethodFeature(methodNotesAndAnnotations,"String","selecttiv",methodParams,"selective",methodParams));
+			Class<?> clazz=BaseService.class;
+			Method[] methods=clazz.getMethods();
+			Set<String> importSet=new HashSet<String>();
+			for(int i=0;i<methods.length;i++) {
+				Method method=methods[i];
+				Class<?>[] types=method.getParameterTypes();
+				List<ParamDescription> listParam=new ArrayList<ParamDescription>();
+				StringBuilder paramString=new StringBuilder();
+				for(int j=0;j<types.length;j++) {
+					Class<?> type=types[j];
+					if(j==types.length-1) {
+						paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
+					}else {
+						paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
+					}
+					importSet.add(type.getName().substring(0, type.getName().lastIndexOf(".")));
+				}
+				List<String> descriptionList=new ArrayList<String>();
+				descriptionList.add("/**");
+				descriptionList.add(" * @Title: "+clazz.getSimpleName()+">"+method.getName());  
+				descriptionList.add(" * @Description: TODO "); 
+				descriptionList.add(" * @param javaFileBody");
+				descriptionList.add(" * @return");
+				descriptionList.add(" */");				
+				
+				Annotation[] annotations=method.getAnnotations();
+				List<String> annotationList=new ArrayList<String>();
+				for(int j=0;j<annotations.length;j++) {
+					Annotation annotation=annotations[j];
+					annotationList.add(annotation.annotationType().getSimpleName());
+					importSet.add(annotation.annotationType().getName().substring(0, annotation.annotationType().getName().lastIndexOf(".")));
+				}
+				
+				String returnType=method.getReturnType().getSimpleName();
+				importSet.add(method.getReturnType().getName().substring(0, method.getReturnType().getName().lastIndexOf(".")));
+				//(List<String> methodDescription,List<String> methodAnnotation,String returnType,String methodName,String serviceParams,String daoMethodName,String daoParams) {
+				MethodFeature methodFeature=new MethodFeature(descriptionList,annotationList,returnType,method.getName(),paramString.toString(),method.getName(),paramString.toString());
+				methodItemList.add(methodFeature);
+			}
 			javaFileBody.setMethodFeatureList(methodItemList);
 		}else if(javaFileBody.getJavaFileType().name().equals("PROVIDER")){
 			javFileTemplate.setTemplateFileName("provider.ftl");
