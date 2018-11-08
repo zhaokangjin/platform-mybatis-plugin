@@ -13,6 +13,8 @@ public class MethodFeature implements Serializable{
 	
 	private String returnType ;
 	
+	private String returnTypeGen ;
+	
 	private String methodName;
 	
 	private String serviceParams;
@@ -21,10 +23,11 @@ public class MethodFeature implements Serializable{
 	
 	private String daoParams;
 
-	public MethodFeature(List<String> methodDescription,List<String> methodAnnotation,String returnType,String methodName,String serviceParams,String daoMethodName,String daoParams) {
+	public MethodFeature(List<String> methodDescription,List<String> methodAnnotation,String returnType,String returnTypeGen,String methodName,String serviceParams,String daoMethodName,String daoParams) {
 		this.methodDescription=methodDescription;
 		this.methodAnnotation=methodAnnotation;
 		this.returnType=returnType;
+		this.returnTypeGen=returnTypeGen;
 		this.methodName=methodName;
 		this.serviceParams=serviceParams;
 		this.daoMethodName=methodName;
@@ -57,6 +60,14 @@ public class MethodFeature implements Serializable{
 
 	public String getDaoParams() {
 		return daoParams;
+	}
+
+	public String getReturnTypeGen() {
+		return returnTypeGen;
+	}
+
+	public void setReturnTypeGen(String returnTypeGen) {
+		this.returnTypeGen = returnTypeGen;
 	}
 	
 	

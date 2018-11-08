@@ -29,6 +29,12 @@
 			<groupId>com.platform</groupId>
 			<artifactId>platform.field.mapping</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.platflat</groupId>
+					<artifactId>platflat.common</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.mybatis.generator</groupId>

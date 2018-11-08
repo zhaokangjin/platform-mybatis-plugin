@@ -10,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.alibaba.fastjson.JSON;
+import com.platform.configure.base.enums.MsgLevel;
+import com.platform.configure.base.enums.Status;
 import com.platform.configure.base.BaseService;
 import com.platform.configure.base.ConditionToExample;
-import com.platform.configure.base.Status;
-import com.platform.configure.base.StatusResult;
+import com.platform.configure.result.CustomException;
+import com.platform.configure.result.ResultStatus;
 
 import ${basePackageName}.condition.${upperDomainName}Condition;
 import ${basePackageName}.dao.${dataAlias}.${upperDomainName}Mapper;
@@ -27,7 +29,8 @@ import ${basePackageName}.entity.${upperDomainName}Example.Criteria;
  */
 @Service
 @Transactional
-public class ${className}  implements BaseService<${upperDomainName}, ${upperDomainName}Condition>{
+//  implements BaseService<${upperDomainName}, ${upperDomainName}Condition>
+public class ${className}{
 	private Logger logger =LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
@@ -35,16 +38,15 @@ public class ${className}  implements BaseService<${upperDomainName}, ${upperDom
 	
 	<#list methodFeatureList as methodItem>
 
-    public ${methodItem.returnType} ${methodItem.methodName}(${methodItem.serviceParams}){
+    public ${methodItem.returnType}<${methodItem.returnTypeGen}> ${methodItem.methodName}(${methodItem.serviceParams}) throws CustomException{
         logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">JSONParam:");
     	try{
-    		${methodItem.returnType} result=${lowerDomainName}Mapper.${methodItem.methodName}(${methodItem.daoParams});
-    		return reulst;
+    		${methodItem.returnTypeGen} result=${lowerDomainName}Mapper.${methodItem.methodName}(${methodItem.daoParams});
+    		logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">result:"+JSON.toJSONString(result));
+    		return new ResultStatus<${methodItem.returnTypeGen}>(result,Status.SUCCESS);
     	}catch(Exception e){
-    		logger.error(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">IOExceptionFos:" + e);
-    		//TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-    		//exceptionTransactionSetting;
     		TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+    		throw new CustomException("Aplication.exception","Develop need to process",Status.EXCEPTION,MsgLevel.ERROR,e);
     	}
     	
     }

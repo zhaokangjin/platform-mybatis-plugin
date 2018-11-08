@@ -1,13 +1,22 @@
 package ${packageName};
 
-import java.util.List;
+import com.platform.configure.base.enums.DeletedType;
+import com.platform.configure.condition.Conditions;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 
  */
-public class ${className} {
-    <#list attrList as attr> 
+public class ${className} implements Serializable{
+	
+	private static final long serialVersionUID = 1L;
+	
+    <#list attrList as attr>
+    //${attr.name} 
     private ${attr.type} ${attr.name};
+    
     </#list>
 
     <#list attrList as attr>
