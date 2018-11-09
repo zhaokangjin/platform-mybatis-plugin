@@ -10,7 +10,7 @@ public interface FieldMappingMapper {
 
     int deleteByExample(FieldMappingExample example);
 
-    int insert(FieldMapping record);
+    int insert(com.platform.entity.FieldMapping fieldMapping);
 
     int insertSelective(FieldMapping record);
 

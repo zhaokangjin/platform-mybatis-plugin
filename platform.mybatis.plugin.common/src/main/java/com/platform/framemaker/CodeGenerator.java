@@ -16,6 +16,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.platform.dao.master.FieldMappingMapper;
 import com.platform.framemaker.entity.EntityAttribute;
@@ -200,19 +203,34 @@ public class CodeGenerator {
 			Set<String> importSet=new HashSet<String>();
 			for(int i=0;i<methods.length;i++) {
 				Method method=methods[i];
+				if(method.getName().toLowerCase().contains("update") ||method.getName().toLowerCase().contains("delete") ||method.getName().toLowerCase().contains("insert")) {
+					javaFileBody.setTxMethodHeader("@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class)");
+					javaFileBody.setTxMethodException("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
+				}
 				Class<?>[] types=method.getParameterTypes();
 				StringBuilder paramString=new StringBuilder();
 				StringBuilder daoString=new StringBuilder();
 				for(int j=0;j<types.length;j++) {
 					Class<?> type=types[j];
 					if(j==types.length-1) {
-						paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
+						if(null!=type.getSimpleName() && !type.getSimpleName().endsWith("Example")) {
+							paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
+						}else if(null!=type.getSimpleName() && type.getSimpleName().endsWith("Example")){
+							javaFileBody.setNewExample(type.getSimpleName()+" "+WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())+"=new "+type.getSimpleName()+"();");
+							javaFileBody.setSerValueExample("ConditonToExample<"+javaFileBody.getUpperDomainName()+"Condition,"+type.getSimpleName()+"> conditonToExample =new ConditonToExample<"+javaFileBody.getUpperDomainName()+"Condition,"+type.getSimpleName()+">()");
+						}
 						daoString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
 					}else {
-						paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
+						if(null!=type.getSimpleName() && !type.getSimpleName().endsWith("Example")) {
+							paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
+						}
 						daoString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
 					}
 					importSet.add(type.getName().substring(0, type.getName().lastIndexOf(".")));
+				}
+				String paramStr=paramString.toString();
+				if(paramStr.endsWith(",")) {
+					paramStr=paramStr.substring(0, paramStr.length()-1);
 				}
 				List<String> descriptionList=new ArrayList<String>();
 				descriptionList.add("/**");
@@ -232,17 +250,16 @@ public class CodeGenerator {
 				
 				String returnType="ResultStatus";
 				String returnTypeGen=method.getReturnType().getSimpleName();
+				
 				if(returnTypeGen.equals("int")) {
 					returnTypeGen="Integer";
-				}
-				if(returnTypeGen.equals("long")) {
+				}else if(returnTypeGen.equals("long")) {
 					returnTypeGen="Long";
+				}else{
+					returnTypeGen=returnTypeGen+"<"+javaFileBody.getUpperDomainName()+">";
 				}
-				if(returnTypeGen.equals("lang")) {
-					returnTypeGen="Lang";
-				}
-				//(List<String> methodDescription,List<String> methodAnnotation,String returnType,String methodName,String serviceParams,String daoMethodName,String daoParams) {
-				MethodFeature methodFeature=new MethodFeature(descriptionList,annotationList,returnType,returnTypeGen,method.getName(),paramString.toString(),method.getName(),daoString.toString());
+				
+				MethodFeature methodFeature=new MethodFeature(descriptionList,annotationList,returnType,returnTypeGen,method.getName(),paramStr,method.getName(),daoString.toString());
 				methodItemList.add(methodFeature);
 			}
 			javaFileBody.setMethodFeatureList(methodItemList);

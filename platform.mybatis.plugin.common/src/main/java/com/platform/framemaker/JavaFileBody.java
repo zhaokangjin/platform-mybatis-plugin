@@ -29,7 +29,10 @@ public class JavaFileBody implements Serializable {
 		this.upperDomainName = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName);
 		this.basePackageName = packageName;
 	}
-
+	private String txMethodHeader;
+	private String txMethodException;
+	private String newExample;
+	private String serValueExample;
 	private String javaFilePath;
 	private String dataAlias;
 	private String domainName;
@@ -45,10 +48,6 @@ public class JavaFileBody implements Serializable {
 	private List<String> fieldList;
 	private List<EntityAttribute> attrList;
 	private List<MethodFeature> methodFeatureList;
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
 
 	public String getJavaFilePath() {
 		return javaFilePath;
@@ -168,6 +167,38 @@ public class JavaFileBody implements Serializable {
 
 	public void setMethodFeatureList(List<MethodFeature> methodFeatureList) {
 		this.methodFeatureList = methodFeatureList;
+	}
+
+	public String getTxMethodHeader() {
+		return txMethodHeader;
+	}
+
+	public void setTxMethodHeader(String txMethodHeader) {
+		this.txMethodHeader = txMethodHeader;
+	}
+
+	public String getTxMethodException() {
+		return txMethodException;
+	}
+
+	public void setTxMethodException(String txMethodException) {
+		this.txMethodException = txMethodException;
+	}
+
+	public String getNewExample() {
+		return newExample;
+	}
+
+	public void setNewExample(String newExample) {
+		this.newExample = newExample;
+	}
+
+	public String getSerValueExample() {
+		return serValueExample;
+	}
+
+	public void setSerValueExample(String serValueExample) {
+		this.serValueExample = serValueExample;
 	}
 
 }
