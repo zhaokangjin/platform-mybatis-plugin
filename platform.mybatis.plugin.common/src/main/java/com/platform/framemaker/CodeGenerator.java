@@ -16,11 +16,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import com.platform.dao.master.FieldMappingMapper;
 import com.platform.framemaker.entity.EntityAttribute;
 import com.platform.utils.JoinUtils;
 
@@ -39,14 +35,15 @@ public class CodeGenerator {
 		System.err.println("path>>>"+path);
 		String domainName = "fieldMapping";
 		String packageName="com.platform";
+		//com.platform.dao.master
 		JavaFileBody conditionFileBody=new JavaFileBody(packageName,domainName,JavaFileType.CONDITION);
 		JavaFileBody serviceFileBody=new JavaFileBody(packageName,domainName,JavaFileType.SERVICE);
-//		JavaFileBody providerFileBody=new JavaFileBody(packageName,domainName,JavaFileType.PROVIDER);
+		//JavaFileBody providerFileBody=new JavaFileBody(packageName,domainName,JavaFileType.PROVIDER);
 //		JavaFileBody providerImplFileBody=new JavaFileBody(packageName,domainName,JavaFileType.PROVIDER_IMPL);
 //		JavaFileBody testFileBody=new JavaFileBody(packageName,domainName,JavaFileType.TEST);
 		JavFileTemplate<JavaFileBody> javFileTemplate1 = generatorJavaFile(conditionFileBody);
 		JavFileTemplate<JavaFileBody> javFileTemplate2 = generatorJavaFile(serviceFileBody);
-//		JavFileTemplate<JavaFileBody> javFileTemplate3 = generatorJavaFile(providerFileBody);
+		//JavFileTemplate<JavaFileBody> javFileTemplate3 = generatorJavaFile(providerFileBody);
 //		JavFileTemplate<JavaFileBody> javFileTemplate4 = generatorJavaFile(providerImplFileBody);
 //		JavFileTemplate<JavaFileBody> javFileTemplate5 = generatorJavaFile(testFileBody)
 		
@@ -201,36 +198,39 @@ public class CodeGenerator {
 			}
 			Method[] methods=clazz.getMethods();
 			Set<String> importSet=new HashSet<String>();
+			
 			for(int i=0;i<methods.length;i++) {
+				Class<?> exampleType=null;
 				Method method=methods[i];
-				if(method.getName().toLowerCase().contains("update") ||method.getName().toLowerCase().contains("delete") ||method.getName().toLowerCase().contains("insert")) {
-					javaFileBody.setTxMethodHeader("@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class)");
-					javaFileBody.setTxMethodException("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
-				}
 				Class<?>[] types=method.getParameterTypes();
-				StringBuilder paramString=new StringBuilder();
-				StringBuilder daoString=new StringBuilder();
+				StringBuilder serviceParamsString=new StringBuilder();
+				StringBuilder daoParamString=new StringBuilder();
 				for(int j=0;j<types.length;j++) {
 					Class<?> type=types[j];
 					if(j==types.length-1) {
-						if(null!=type.getSimpleName() && !type.getSimpleName().endsWith("Example")) {
-							paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
-						}else if(null!=type.getSimpleName() && type.getSimpleName().endsWith("Example")){
-							javaFileBody.setNewExample(type.getSimpleName()+" "+WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())+"=new "+type.getSimpleName()+"();");
-							javaFileBody.setSerValueExample("ConditonToExample<"+javaFileBody.getUpperDomainName()+"Condition,"+type.getSimpleName()+"> conditonToExample =new ConditonToExample<"+javaFileBody.getUpperDomainName()+"Condition,"+type.getSimpleName()+">()");
+						if(null!=type.getSimpleName() && !type.getSimpleName().toLowerCase().endsWith("example")) {
+							serviceParamsString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
+							daoParamString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
+						}else if(null!=type.getSimpleName() && type.getSimpleName().toLowerCase().endsWith("example")){
+							exampleType=type;
+							serviceParamsString.append(javaFileBody.getUpperDomainName()+"Condition").append(" ").append(javaFileBody.getLowerDomainName()+"Condition");
+							daoParamString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar("conditonToExample.getExamlpe()"));
 						}
-						daoString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
 					}else {
-						if(null!=type.getSimpleName() && !type.getSimpleName().endsWith("Example")) {
-							paramString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
+						if(null!=type.getSimpleName() && !type.getSimpleName().toLowerCase().endsWith("example")) {
+							serviceParamsString.append(type.getSimpleName()).append(" ").append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
+							daoParamString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
+						}else if(null!=type.getSimpleName() && type.getSimpleName().toLowerCase().endsWith("example")){
+							exampleType=type;
+							serviceParamsString.append(javaFileBody.getUpperDomainName()+"Condition").append(" ").append(javaFileBody.getLowerDomainName()+"Condition").append(",");
+							daoParamString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar("conditonToExample.getExamlpe()")).append(",");
 						}
-						daoString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(",");
 					}
 					importSet.add(type.getName().substring(0, type.getName().lastIndexOf(".")));
 				}
-				String paramStr=paramString.toString();
-				if(paramStr.endsWith(",")) {
-					paramStr=paramStr.substring(0, paramStr.length()-1);
+				String serviceParams=serviceParamsString.toString();
+				if(serviceParams.endsWith(",")) {
+					serviceParams=serviceParams.substring(0, serviceParams.length()-1);
 				}
 				List<String> descriptionList=new ArrayList<String>();
 				descriptionList.add("/**");
@@ -258,8 +258,21 @@ public class CodeGenerator {
 				}else{
 					returnTypeGen=returnTypeGen+"<"+javaFileBody.getUpperDomainName()+">";
 				}
-				
-				MethodFeature methodFeature=new MethodFeature(descriptionList,annotationList,returnType,returnTypeGen,method.getName(),paramStr,method.getName(),daoString.toString());
+				MethodFeature methodFeature=new MethodFeature(descriptionList,annotationList,returnType,returnTypeGen,method.getName(),serviceParams,method.getName(),daoParamString.toString());
+				if(null!=exampleType) {
+					methodFeature.setNewExample(exampleType.getSimpleName()+" "+WordFirstCharChangeUtils.toLowerCaseFirstChar(exampleType.getSimpleName())+"=new "+exampleType.getSimpleName()+"();");
+					methodFeature.setConditionValueToExample("ConditonToExample<"+javaFileBody.getUpperDomainName()+"Condition,"+exampleType.getSimpleName()+"> conditonToExample =new ConditonToExample<"+javaFileBody.getUpperDomainName()+"Condition,"+exampleType.getSimpleName()+">("+WordFirstCharChangeUtils.toLowerCaseFirstChar(javaFileBody.getUpperDomainName())+"Condition, "+WordFirstCharChangeUtils.toLowerCaseFirstChar(exampleType.getSimpleName())+")");
+				}else {
+					methodFeature.setNewExample("");
+					methodFeature.setConditionValueToExample("//没有传递条件参数启用 ,无需转换 条件");
+				}
+				if(method.getName().toLowerCase().contains("update") || method.getName().toLowerCase().contains("delete") || method.getName().toLowerCase().contains("insert")) {
+					methodFeature.setTxMethodHeader("@Transactional(propagation=Propagation.REQUIRED,rollbackFor=Exception.class)");
+					methodFeature.setTxMethodException("TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();");
+				}else {
+					methodFeature.setTxMethodHeader("//无事务");
+					methodFeature.setTxMethodException("//查询无需异常事务回滚");
+				}
 				methodItemList.add(methodFeature);
 			}
 			javaFileBody.setMethodFeatureList(methodItemList);

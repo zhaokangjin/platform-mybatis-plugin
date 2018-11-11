@@ -29,10 +29,10 @@ public class JavaFileBody implements Serializable {
 		this.upperDomainName = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName);
 		this.basePackageName = packageName;
 	}
+
 	private String txMethodHeader;
 	private String txMethodException;
-	private String newExample;
-	private String serValueExample;
+	private String serviceValueExample;
 	private String javaFilePath;
 	private String dataAlias;
 	private String domainName;
@@ -185,20 +185,11 @@ public class JavaFileBody implements Serializable {
 		this.txMethodException = txMethodException;
 	}
 
-	public String getNewExample() {
-		return newExample;
+	public String getServiceValueExample() {
+		return serviceValueExample;
 	}
 
-	public void setNewExample(String newExample) {
-		this.newExample = newExample;
+	public void setServiceValueExample(String serviceValueExample) {
+		this.serviceValueExample = serviceValueExample;
 	}
-
-	public String getSerValueExample() {
-		return serValueExample;
-	}
-
-	public void setSerValueExample(String serValueExample) {
-		this.serValueExample = serValueExample;
-	}
-
 }

@@ -39,19 +39,19 @@ public class ${className}{
 	
 	<#list methodFeatureList as methodItem>
 	
-	${txMethodHeader}
+	${methodItem.txMethodHeader}
     public ${methodItem.returnType}<${methodItem.returnTypeGen}> ${methodItem.methodName}(${methodItem.serviceParams}) throws CustomException{
         if(logger.isInfoEnabled()) {
         	logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">JSONParam:");
     	}
     	try{
-    		${newExample}
-    		${serValueExample};
+    		${methodItem.newExample}
+    		${methodItem.conditionValueToExample};
     		${methodItem.returnTypeGen} result=${lowerDomainName}Mapper.${methodItem.methodName}(${methodItem.daoParams});
     		logger.info(Thread.currentThread().getStackTrace()[1].getClassName() + ">" + Thread.currentThread().getStackTrace()[1].getMethodName() + ">result:"+JSON.toJSONString(result));
     		return new ResultStatus<${methodItem.returnTypeGen}>(result,Status.SUCCESS);
     	}catch(Exception e){
-    		${txMethodException}
+    		${methodItem.txMethodException}
     		throw new CustomException("Aplication.exception","Develop need to process",Status.EXCEPTION,MsgLevel.ERROR,e);
     	}
     	

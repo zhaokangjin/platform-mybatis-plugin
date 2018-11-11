@@ -22,6 +22,14 @@ public class MethodFeature implements Serializable{
 	private String daoMethodName;
 	
 	private String daoParams;
+	
+	private String conditionValueToExample;
+	
+	private String newExample;
+	
+	private String txMethodHeader;
+	
+	private String txMethodException;
 
 	public MethodFeature(List<String> methodDescription,List<String> methodAnnotation,String returnType,String returnTypeGen,String methodName,String serviceParams,String daoMethodName,String daoParams) {
 		this.methodDescription=methodDescription;
@@ -68,6 +76,38 @@ public class MethodFeature implements Serializable{
 
 	public void setReturnTypeGen(String returnTypeGen) {
 		this.returnTypeGen = returnTypeGen;
+	}
+
+	public String getConditionValueToExample() {
+		return conditionValueToExample;
+	}
+
+	public String getNewExample() {
+		return newExample;
+	}
+
+	public void setConditionValueToExample(String conditionValueToExample) {
+		this.conditionValueToExample = conditionValueToExample;
+	}
+
+	public void setNewExample(String newExample) {
+		this.newExample = newExample;
+	}
+
+	public String getTxMethodHeader() {
+		return txMethodHeader;
+	}
+
+	public void setTxMethodHeader(String txMethodHeader) {
+		this.txMethodHeader = txMethodHeader;
+	}
+
+	public String getTxMethodException() {
+		return txMethodException;
+	}
+
+	public void setTxMethodException(String txMethodException) {
+		this.txMethodException = txMethodException;
 	}
 	
 	
