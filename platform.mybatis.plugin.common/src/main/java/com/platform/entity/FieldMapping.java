@@ -29,7 +29,7 @@ public class FieldMapping extends BaseEntity implements Serializable {
     private Date UpdateTime;
 
     // tpl_field_mapping.DELETE_FLAG
-    private DeletedType deleteFlag;
+    private DeletedType deletedType;
 
     //tpl_field_mapping
     private static final long serialVersionUID = 1L;
@@ -90,11 +90,12 @@ public class FieldMapping extends BaseEntity implements Serializable {
 		UpdateTime = updateTime;
 	}
 
-	public DeletedType getDeleteFlag() {
-		return deleteFlag;
+	public DeletedType getDeletedType() {
+		return deletedType;
 	}
 
-	public void setDeleteFlag(DeletedType deleteFlag) {
-		this.deleteFlag = deleteFlag;
+	public void setDeletedType(DeletedType deletedType) {
+		this.deletedType = deletedType;
 	}
+
 }

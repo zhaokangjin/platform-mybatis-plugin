@@ -13,7 +13,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.alibaba.fastjson.JSON;
 import com.platform.configure.base.enums.MsgLevel;
 import com.platform.configure.base.enums.Status;
-import com.platform.configure.base.BaseService;
 import com.platform.configure.result.ConditonToExample;
 import com.platform.configure.result.CustomException;
 import com.platform.configure.result.ResultStatus;
@@ -22,7 +21,6 @@ import ${basePackageName}.condition.${upperDomainName}Condition;
 import ${basePackageName}.dao.${dataAlias}.${upperDomainName}Mapper;
 import ${basePackageName}.entity.${upperDomainName};
 import ${basePackageName}.entity.${upperDomainName}Example;
-import ${basePackageName}.entity.${upperDomainName}Example.Criteria;
 
 /**
  * 逻辑处理层
@@ -30,7 +28,6 @@ import ${basePackageName}.entity.${upperDomainName}Example.Criteria;
  */
 @Service
 @Transactional
-//  implements BaseService<${upperDomainName}, ${upperDomainName}Condition>
 public class ${className}{
 	private Logger logger =LoggerFactory.getLogger(this.getClass());
 	

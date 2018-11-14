@@ -11,17 +11,7 @@ public class JavaFileBody implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public JavaFileBody(String packageName, String domainName, JavaFileType javaFileType) {
-		if (javaFileType.name().equals("CONDITION")) {
-			this.className = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName) + "Condition";
-		} else if (javaFileType.name().equals("SERVICE")) {
-			this.className = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName) + "Service";
-		} else if (javaFileType.name().equals("PROVIDER")) {
-			this.className = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName) + "Provider";
-		} else if (javaFileType.name().equals("PROVIDER_IMPL")) {
-			this.className = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName) + "ProviderImpl";
-		} else if (javaFileType.name().equals("TEST")) {
-			this.className = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName) + "Test";
-		}
+		this.className=WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName)+javaFileType.getType();
 		this.packageName = packageName;
 		this.domainName = domainName;
 		this.lowerDomainName = WordFirstCharChangeUtils.toLowerCaseFirstChar(domainName);

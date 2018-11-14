@@ -34,8 +34,8 @@ public class FieldMappingCondition implements Serializable{
     //UpdateTime 
     private Conditions<Date> UpdateTime;
     
-    //deleteFlag 
-    private Conditions<DeletedType> deleteFlag;
+    //deletedType 
+    private Conditions<DeletedType> deletedType;
     
 
     public void setFieldid(Conditions<String> fieldid){
@@ -80,10 +80,10 @@ public class FieldMappingCondition implements Serializable{
     public Conditions<Date> getUpdateTime(){
         return this.UpdateTime;
     }
-    public void setDeleteFlag(Conditions<DeletedType> deleteFlag){
-        this.deleteFlag = deleteFlag;
+    public void setDeletedType(Conditions<DeletedType> deletedType){
+        this.deletedType = deletedType;
     }
-    public Conditions<DeletedType> getDeleteFlag(){
-        return this.deleteFlag;
+    public Conditions<DeletedType> getDeletedType(){
+        return this.deletedType;
     }
 }

@@ -22,6 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.platform.framemaker.CodeGenerator;
+import com.platform.framemaker.JavFileTemplate;
+import com.platform.framemaker.JavaFileBody;
+import com.platform.framemaker.JavaFileType;
 
 /**
  * 生成批量删除、更新、插入接口
@@ -44,10 +48,27 @@ public class PlatformMapperPlugin extends PluginAdapter {
 	@Override
 	public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 		interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param"));
-		//添加批量插入方法
+		// 添加批量插入方法
 		interfaze.addMethod(batchUpdateByPrimaryKey(introspectedTable));
 		interfaze.addMethod(selectByListInDao(introspectedTable));
-		return super.clientGenerated(interfaze, topLevelClass, introspectedTable);
+		boolean result = super.clientGenerated(interfaze, topLevelClass, introspectedTable);
+		String type = introspectedTable.getExampleType();
+		//com.platform.field.mapping.entity.FieldMappingExample
+		logger.info("type:"+type);
+		allFiles();
+		return result;
+	}
+
+	public void allFiles() {
+		String path = System.getProperty("user.dir");
+		String domainName = "fieldMapping";
+		String packageName = "com.platform";
+		JavaFileBody conditionFileBody = new JavaFileBody(packageName, domainName, JavaFileType.CONDITION);
+		JavaFileBody serviceFileBody = new JavaFileBody(packageName, domainName, JavaFileType.SERVICE);
+		JavFileTemplate<JavaFileBody> javFileTemplate1 = CodeGenerator.generatorJavaFile(conditionFileBody);
+		JavFileTemplate<JavaFileBody> javFileTemplate2 = CodeGenerator.generatorJavaFile(serviceFileBody);
+		new CodeGenerator().genJavaFile(javFileTemplate1);
+		new CodeGenerator().genJavaFile(javFileTemplate2);
 	}
 
 	// 向mapping中添加自定义方法
@@ -69,8 +90,11 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 		return method;
 	}
+
 	private Method selectByListInDao(IntrospectedTable introspectedTable) {
-		//@Param("fieldName") String fieldName, @Param("paramList") List<Object> paramList, @Param("splitSize") int splitSize, @Param("example") FieldMappingExample example
+		// @Param("fieldName") String fieldName, @Param("paramList") List<Object>
+		// paramList, @Param("splitSize") int splitSize, @Param("example")
+		// FieldMappingExample example
 		Method method = new Method("selectFieldByList");
 		method.setVisibility(JavaVisibility.PUBLIC);
 		method.setReturnType(FullyQualifiedJavaType.getIntInstance());
@@ -78,23 +102,24 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		method.addParameter(new Parameter(new FullyQualifiedJavaType("java.util.List<java.lang.String>"), "paramList", "@Param(\"paramList\")"));
 		method.addParameter(new Parameter(new FullyQualifiedJavaType("java.lang.Integer"), "splitSize", "@Param(\"splitSize\")"));
 		method.addParameter(new Parameter(new FullyQualifiedJavaType(introspectedTable.getExampleType()), "example", "@Param(\"example\")"));
-		FullyQualifiedJavaType returnType=new FullyQualifiedJavaType("java.util.List<" + introspectedTable.getBaseRecordType() + ">");
+		FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.List<" + introspectedTable.getBaseRecordType() + ">");
 		method.setReturnType(returnType);
 		context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 		return method;
 	}
+
 	private boolean selectByListInXML(Document document, IntrospectedTable introspectedTable) {
 		XmlElement parentElement = document.getRootElement();
 		XmlElement select = new XmlElement("select");
 		select.addAttribute(new Attribute("id", "selectFieldByList"));
-		select.addAttribute(new Attribute("resultMap","BaseResultMap"));
+		select.addAttribute(new Attribute("resultMap", "BaseResultMap"));
 		select.addElement(new TextElement("select "));
 		select.addElement(new TextElement("	<if test=\"example neq null and example.distinct eq true\">"));
 		select.addElement(new TextElement("		distinct"));
 		select.addElement(new TextElement("	</if>"));
 		select.addElement(new TextElement("	'true' as QUERYID,"));
 		select.addElement(new TextElement("	<include refid=\"Base_Column_List\" />"));
-		select.addElement(new TextElement(" from "+introspectedTable.getFullyQualifiedTableNameAtRuntime()+" t " ));
+		select.addElement(new TextElement(" from " + introspectedTable.getFullyQualifiedTableNameAtRuntime() + " t "));
 		select.addElement(new TextElement("	<where>"));
 		select.addElement(new TextElement("		1=1 "));
 		select.addElement(new TextElement("		<if test=\"fieldName neq null and paramList neq null\">"));
@@ -106,41 +131,41 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		select.addElement(new TextElement("					</if>"));
 		select.addElement(new TextElement("					<if test=\"index % splitSize eq 0 and index neq splitSize-1\">"));
 		select.addElement(new TextElement("						(#{item,jdbcType=VARCHAR},"));
-		select.addElement(new TextElement("					</if>"));		
+		select.addElement(new TextElement("					</if>"));
 		select.addElement(new TextElement("					<if test=\"index % splitSize neq 0 and index eq splitSize-1\">"));
 		select.addElement(new TextElement("						#{item,jdbcType=VARCHAR})"));
-		select.addElement(new TextElement("					</if>"));		
+		select.addElement(new TextElement("					</if>"));
 		select.addElement(new TextElement("					<if test=\"index % splitSize neq 0 and index neq splitSize-1\">"));
 		select.addElement(new TextElement("						#{item,jdbcType=VARCHAR},"));
-		select.addElement(new TextElement("					</if>"));		
+		select.addElement(new TextElement("					</if>"));
 		select.addElement(new TextElement("				</if>"));
 		select.addElement(new TextElement("				<if test=\"index gte splitSize\">"));
 		select.addElement(new TextElement("					<if test=\"index lt (paramList.size - paramList.size % splitSize)\">"));
 		select.addElement(new TextElement("						<if test=\"index % splitSize eq 0 and index neq paramList.size-1\">"));
-		select.addElement(new TextElement("							or t.${fieldName} in (#{item,jdbcType=VARCHAR},"));		
+		select.addElement(new TextElement("							or t.${fieldName} in (#{item,jdbcType=VARCHAR},"));
 		select.addElement(new TextElement("						</if>"));
 		select.addElement(new TextElement("						<if test=\"index % splitSize neq 0 and (index % splitSize eq splitSize-1)\">"));
-		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR})"));		
+		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR})"));
 		select.addElement(new TextElement("						</if>"));
 		select.addElement(new TextElement("						<if test=\"index % splitSize neq 0 and (index % splitSize lt splitSize-1)\">"));
-		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR},"));		
+		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR},"));
 		select.addElement(new TextElement("						</if>"));
 		select.addElement(new TextElement("					</if>"));
 		select.addElement(new TextElement("					<if test=\"index gte (paramList.size - paramList.size % splitSize)\">"));
 		select.addElement(new TextElement("						<if test=\"paramList.size % splitSize eq 1\">"));
-		select.addElement(new TextElement("							or t.${fieldName} in (#{item,jdbcType=VARCHAR})"));		
+		select.addElement(new TextElement("							or t.${fieldName} in (#{item,jdbcType=VARCHAR})"));
 		select.addElement(new TextElement("						</if>"));
 		select.addElement(new TextElement("						<if test=\"index % splitSize eq 0 and index neq paramList.size-1\">"));
-		select.addElement(new TextElement("							or t.${fieldName} in (#{item,jdbcType=VARCHAR},"));		
+		select.addElement(new TextElement("							or t.${fieldName} in (#{item,jdbcType=VARCHAR},"));
 		select.addElement(new TextElement("						</if>"));
 		select.addElement(new TextElement("						<if test=\"(index % splitSize neq 0) and (index eq paramList.size-1)\">"));
-		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR})"));		
+		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR})"));
 		select.addElement(new TextElement("						</if>"));
 		select.addElement(new TextElement("						<if test=\"index % splitSize neq 0 and index neq paramList.size-1\">"));
-		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR},"));		
+		select.addElement(new TextElement("							#{item,jdbcType=VARCHAR},"));
 		select.addElement(new TextElement("						</if>"));
-		select.addElement(new TextElement("					</if>"));		
-		select.addElement(new TextElement("				</if>"));		
+		select.addElement(new TextElement("					</if>"));
+		select.addElement(new TextElement("				</if>"));
 		select.addElement(new TextElement("			</foreach>)"));
 		select.addElement(new TextElement("		</if>"));
 		select.addElement(new TextElement("		<if test=\"example neq null and example.oredCriteria neq null\">"));
@@ -178,6 +203,7 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		parentElement.addElement(select);
 		return super.sqlMapDocumentGenerated(document, introspectedTable);
 	}
+
 	// 生成mapping 拼装 sql
 	public boolean batchUpdateByPrimaryKeySelectiveXMLGenerated(Document document, IntrospectedTable introspectedTable) {
 		XmlElement parentElement = document.getRootElement();
@@ -188,8 +214,8 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		update.addElement(new TextElement("<foreach collection=\"list\" item=\"item\" separator=\";\">"));
 		update.addElement(new TextElement("	update " + introspectedTable.getFullyQualifiedTableNameAtRuntime()));
 		update.addElement(new TextElement("	<set>"));
-		String baseResultMapStr=getBaseResultMapStr(parentElement);
-		if(null!=baseResultMapStr) {
+		String baseResultMapStr = getBaseResultMapStr(parentElement);
+		if (null != baseResultMapStr) {
 			List<Map<String, String>> list = getField2Propertie(baseResultMapStr);
 			logger.info("columnListlist:" + JSON.toJSONString(list));
 			list.forEach((map) -> {
@@ -206,7 +232,8 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		parentElement.addElement(update);
 		return super.sqlMapDocumentGenerated(document, introspectedTable);
 	}
-	//获取baseResultMap
+
+	// 获取baseResultMap
 	private String getBaseResultMapStr(XmlElement parentElement) {
 		List<Element> elements = parentElement.getElements();
 		for (int i = 0; i < elements.size(); i++) {
@@ -217,8 +244,8 @@ public class PlatformMapperPlugin extends PluginAdapter {
 		}
 		return null;
 	}
-	
-	//通过打印结果调试出来 字段，属性，类型的方法
+
+	// 通过打印结果调试出来 字段，属性，类型的方法
 	private List<Map<String, String>> getField2Propertie(String str) {
 		try {
 			str = str.replaceAll("\\r\\n", "");
@@ -238,7 +265,7 @@ public class PlatformMapperPlugin extends PluginAdapter {
 					columnMap.put("type", it[3]);
 					columnMap.put("propertie", it[5]);
 					columnList.add(columnMap);
-				} 
+				}
 			}
 			logger.info("columnList:" + JSON.toJSONString(columnList));
 			return columnList;
