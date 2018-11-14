@@ -19,7 +19,17 @@ public class JavaFileBody implements Serializable {
 		this.upperDomainName = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName);
 		this.basePackageName = packageName;
 	}
-
+	public JavaFileBody(String packageName, String domainName, JavaFileType javaFileType,String appFileName) {
+		this.className=WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName)+javaFileType.getType();
+		this.packageName = packageName;
+		this.domainName = domainName;
+		this.lowerDomainName = WordFirstCharChangeUtils.toLowerCaseFirstChar(domainName);
+		this.javaFileType = javaFileType;
+		this.upperDomainName = WordFirstCharChangeUtils.toUpperCaseFirstChar(domainName);
+		this.basePackageName = packageName;
+		this.appFileName=appFileName;
+	}
+	private String appFileName;
 	private String txMethodHeader;
 	private String txMethodException;
 	private String serviceValueExample;
@@ -181,5 +191,13 @@ public class JavaFileBody implements Serializable {
 
 	public void setServiceValueExample(String serviceValueExample) {
 		this.serviceValueExample = serviceValueExample;
+	}
+
+	public String getAppFileName() {
+		return appFileName;
+	}
+
+	public void setAppFileName(String appFileName) {
+		this.appFileName = appFileName;
 	}
 }

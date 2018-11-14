@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.platform.condition.FieldMappingCondition;
 import com.platform.framemaker.entity.EntityAttribute;
 import com.platform.utils.JoinUtils;
 
@@ -35,24 +37,25 @@ public class CodeGenerator {
 		System.err.println("path>>>" + path);
 		String domainName = "fieldMapping";
 		String packageName = "com.platform";
+		String appFileName = "FieldMappingApp.class";
 		// com.platform.dao.master
-		JavaFileBody conditionFileBody = new JavaFileBody(packageName, domainName, JavaFileType.CONDITION);
-		JavFileTemplate<JavaFileBody> javFileTemplate1 = generatorJavaFile(conditionFileBody);
-		new CodeGenerator().genJavaFile(javFileTemplate1);
-		JavaFileBody serviceFileBody = new JavaFileBody(packageName, domainName, JavaFileType.SERVICE);
-		JavFileTemplate<JavaFileBody> javFileTemplate2 = generatorJavaFile(serviceFileBody);
-		new CodeGenerator().genJavaFile(javFileTemplate2);
+//		JavaFileBody conditionFileBody = new JavaFileBody(packageName, domainName, JavaFileType.CONDITION);
+//		JavFileTemplate<JavaFileBody> javFileTemplate1 = generatorJavaFile(conditionFileBody);
+//		new CodeGenerator().genJavaFile(javFileTemplate1);
+//		JavaFileBody serviceFileBody = new JavaFileBody(packageName, domainName, JavaFileType.SERVICE);
+//		JavFileTemplate<JavaFileBody> javFileTemplate2 = generatorJavaFile(serviceFileBody);
+//		new CodeGenerator().genJavaFile(javFileTemplate2);
+//
+//		JavaFileBody providerFileBody = new JavaFileBody(packageName, domainName, JavaFileType.PROVIDER);
+//		JavFileTemplate<JavaFileBody> javFileTemplate3 = generatorJavaFile(providerFileBody);
+//		new CodeGenerator().genJavaFile(javFileTemplate3);
+//		JavaFileBody providerImplFileBody = new JavaFileBody(packageName, domainName, JavaFileType.PROVIDER_IMPL);
+//		JavFileTemplate<JavaFileBody> javFileTemplate4 = generatorJavaFile(providerImplFileBody);
+//		new CodeGenerator().genJavaFile(javFileTemplate4);
 
-		JavaFileBody providerFileBody = new JavaFileBody(packageName, domainName, JavaFileType.PROVIDER);
-		JavFileTemplate<JavaFileBody> javFileTemplate3 = generatorJavaFile(providerFileBody);
-		new CodeGenerator().genJavaFile(javFileTemplate3);
-		JavaFileBody providerImplFileBody = new JavaFileBody(packageName, domainName, JavaFileType.PROVIDER_IMPL);
-		JavFileTemplate<JavaFileBody> javFileTemplate4 = generatorJavaFile(providerImplFileBody);
-		new CodeGenerator().genJavaFile(javFileTemplate4);
-
-//		JavaFileBody testFileBody=new JavaFileBody(packageName,domainName,JavaFileType.TEST);
-//		JavFileTemplate<JavaFileBody> javFileTemplate5 = generatorJavaFile(testFileBody)
-//		new CodeGenerator().genJavaFile(javFileTemplate5);
+		JavaFileBody testFileBody = new JavaFileBody(packageName, domainName, JavaFileType.TEST, appFileName);
+		JavFileTemplate<JavaFileBody> javFileTemplate5 = generatorJavaFile(testFileBody);
+		new CodeGenerator().genJavaFile(javFileTemplate5);
 
 	}
 
@@ -426,11 +429,91 @@ public class CodeGenerator {
 				methodItemList.add(methodFeature);
 			}
 			javaFileBody.setMethodFeatureList(methodItemList);
-		} else if (javaFileBody.getJavaFileType().name().equals("TEST")) {
+		} else if (javaFileBody.getJavaFileType().getType().equals(JavaFileType.TEST.getType())) {
 			javFileTemplate.setTemplateFileName("test.ftl");
+			// H:\platformMybatisPlugin\master\code\platform-mybatis-plugin\platform.mybatis.plugin.common\src\test\java\com\platform\provider\test
 			javaFilePath = userDir + SEPARATOR + "test" + SEPARATOR + "java" + SEPARATOR + packagePath;
 			javaDocfile = new File(javaFilePath + SEPARATOR + "provider" + SEPARATOR + "test");
 			javaFileBody.setPackageName(packageName + ".provider.test");
+			List<MethodFeature> methodItemList = new ArrayList<MethodFeature>();
+			Class<?> clazz = null;
+			Class<?> conditionClass = null;
+			try {
+				clazz = Class.forName(packageName + ".dao.master." + javaFileBody.getUpperDomainName() + "Mapper");
+				conditionClass = Class.forName(packageName + ".entity." + javaFileBody.getUpperDomainName());
+			} catch (ClassNotFoundException e) {
+
+			}
+			Method[] methods = clazz.getMethods();
+
+			for (int i = 0; i < methods.length; i++) {
+				Method method = methods[i];
+
+				Field[] conditionFiled = conditionClass.getDeclaredFields();
+
+				
+
+				Class<?>[] types = method.getParameterTypes();
+				// getGenericReturnType
+				StringBuilder serviceParamString = new StringBuilder();
+				for (int j = 0; j < types.length; j++) {
+					Class<?> type = types[j];
+					if (j == types.length - 1) {
+						if (null != type.getSimpleName() && !type.getSimpleName().toLowerCase().endsWith("example")) {
+							
+							serviceParamString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName()));
+						} else {
+
+							serviceParamString.append(javaFileBody.getLowerDomainName() + "Condition");
+						}
+					} else {
+						if (null != type.getSimpleName() && !type.getSimpleName().toLowerCase().endsWith("example")) {
+							serviceParamString.append(WordFirstCharChangeUtils.toLowerCaseFirstChar(type.getSimpleName())).append(", ");
+						} else {
+							serviceParamString.append(javaFileBody.getLowerDomainName() + "Condition").append(", ");
+						}
+					}
+				}
+
+				String returnType = "void";
+
+				MethodFeature methodFeature = new MethodFeature(null, null, returnType, null, method.getName(), null, method.getName(), serviceParamString.toString());
+				ConditionFeature feature = null;
+				String typeo = null;
+				List<ConditionFeature> conditonList = new ArrayList<ConditionFeature>();
+				for (int k = 0; k < conditionFiled.length; k++) {
+					Field field = conditionFiled[k];
+					if (field.getName().equals("serialVersionUID")) {
+						continue;
+					}
+					feature = new ConditionFeature();
+					feature.setFieldName(field.getName());
+					typeo = field.getType().getSimpleName();
+
+					if (typeo.equals("int")) {
+						typeo = "Integer";
+					} else if (typeo.equals("long")) {
+						typeo = "Long";
+					}
+					feature.setFieldType(typeo);
+					feature.setCondition(WordFirstCharChangeUtils.toUpperCaseFirstChar(field.getName()));
+					conditonList.add(feature);
+				}
+				
+				
+				for (int j = 0; j < types.length; j++) {
+					Class<?> type = types[j];
+					if (null != type.getSimpleName() && type.getSimpleName().toLowerCase().endsWith("example")) {
+						methodFeature.setConditionFeature(conditonList);
+					}else {
+						methodFeature.setConditionFeature(new ArrayList<ConditionFeature>());
+					}
+				}
+
+				methodItemList.add(methodFeature);
+			}
+			javaFileBody.setMethodFeatureList(methodItemList);
+
 		}
 
 		if (javaDocfile.exists() && !javaDocfile.isDirectory()) {

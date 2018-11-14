@@ -11,6 +11,10 @@ public class MethodFeature implements Serializable{
 	
 	private List<String> methodAnnotation;
 	
+	private List<String> testParamType;
+	
+	private List<ConditionFeature> conditionFeature;
+	
 	private String returnType ;
 	
 	private String returnTypeGen ;
@@ -108,6 +112,22 @@ public class MethodFeature implements Serializable{
 
 	public void setTxMethodException(String txMethodException) {
 		this.txMethodException = txMethodException;
+	}
+
+	public List<ConditionFeature> getConditionFeature() {
+		return conditionFeature;
+	}
+
+	public void setConditionFeature(List<ConditionFeature> conditionFeature) {
+		this.conditionFeature = conditionFeature;
+	}
+
+	public List<String> getTestParamType() {
+		return testParamType;
+	}
+
+	public void setTestParamType(List<String> testParamType) {
+		this.testParamType = testParamType;
 	}
 	
 	

@@ -20,11 +20,9 @@ import com.platform.configure.result.CustomException;
 
 import ${basePackageName}.entity.${upperDomainName};
 import ${basePackageName}.provider.${upperDomainName}Provider;
-/**
- *  
- */
+
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ${AppClassName}.class)
+@SpringBootTest(classes = ${appFileName})
 public class ${className} {
 	
 	private Logger logger = LoggerFactory.getLogger(${className}.class);
@@ -38,18 +36,16 @@ public class ${className} {
 		${upperDomainName}Condition ${lowerDomainName}Condition=new ${upperDomainName}Condition();
 		
 		try {
-			//以某一个字段类型为例子
-			//Conditions<Date> creationTimeCondition=new Conditions<Date>();
-			//Between<Date> between=new Between<Date>();
-			//between.setEndValue(new Date());
-			//between.setPreValue(new Date());
-			//creationTimeCondition.setBw(between);
-			//fieldMappingCondition.setCreationTime(creationTimeCondition);		
-			<#list conditonList as condition>
-			Conditions<${fieldType}> ${fieldName}Condition=new Conditions<${fieldType}>();
+			<#list methodItem.conditionFeature as condition>
+			//${condition.fieldName}数据范围设置
+			Conditions<${condition.fieldType}> ${condition.fieldName}Condition=new Conditions<${condition.fieldType}>();
 			
-			fieldMappingCondition.set${condition}Condition();
+			${lowerDomainName}Condition.set${condition.condition}(${condition.fieldName}Condition);
 			</#list>
+			<#list methodItem.testParamType as param>
+			${param} ${paramName}=new ${param}();
+			</#list>
+			
 			${lowerDomainName}Provider.${methodItem.methodName}(${methodItem.daoParams});
 			
 		} catch (CustomException e) {
